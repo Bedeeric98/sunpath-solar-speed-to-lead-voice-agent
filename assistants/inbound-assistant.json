@@ -1,0 +1,278 @@
+{
+  "name": "SunPath Solar — Inbound",
+  "description": "",
+  "model": "moonshotai/Kimi-K2.6",
+  "greeting": "Hi, this is Alex with SunPath Solar - thanks for calling back. Am I speaking with {{first_name}}?",
+  "voice_settings": {
+    "voice": "Telnyx.Ultra.00000000-0000-4000-8000-000000000007",
+    "community": null,
+    "voice_speed": 0.9,
+    "background_audio": {
+      "type": "predefined_media",
+      "value": "office",
+      "volume": 0.2
+    },
+    "tool_call_audio": null,
+    "temperature": null,
+    "repetition_penalty": null,
+    "top_p": null,
+    "similarity_boost": 0.5,
+    "style": 0.0,
+    "use_speaker_boost": true,
+    "language_boost": "English",
+    "language": null,
+    "language_voices": null,
+    "expressive_mode": true,
+    "pronunciation_dict_id": null,
+    "region": null
+  },
+  "transcription": {
+    "model": "deepgram/flux",
+    "fallback_models": null,
+    "language": "en",
+    "region": "latency",
+    "settings": {
+      "smart_format": null,
+      "numerals": null,
+      "eot_threshold": 0.8,
+      "eot_timeout_ms": 5000,
+      "eager_eot_threshold": 0.4,
+      "keyterm": null,
+      "eager_turn_probability": null,
+      "final_turn_probability": null,
+      "remove_disfluencies": null,
+      "end_of_turn_confidence_threshold": null,
+      "prompt": null,
+      "min_turn_silence": null,
+      "max_turn_silence": null,
+      "interim_results": null,
+      "enable_endpoint_detection": null,
+      "max_endpoint_delay_ms": null,
+      "context": null,
+      "language_hints": null
+    },
+    "challenger": null
+  },
+  "interruption_settings": {
+    "enable": true,
+    "disable_greeting_interruption": true,
+    "start_speaking_plan": {
+      "wait_seconds": 0.1,
+      "transcription_endpointing_plan": {
+        "on_punctuation_seconds": 0.1,
+        "on_no_punctuation_seconds": 0.1,
+        "on_number_seconds": 0.1
+      },
+      "custom_endpointing_rules": null
+    },
+    "interrupt_prediction_threshold": 0.75
+  },
+  "telephony_settings": {
+    "time_limit_secs": 1800,
+    "user_idle_timeout_secs": null,
+    "user_idle_reply_secs": 10,
+    "noise_suppression": "aicoustics",
+    "voicemail_detection": null
+  },
+  "insight_settings": {
+    "model": null
+  },
+  "dynamic_variables": [
+    "attempt_context",
+    "callback_context",
+    "first_name",
+    "last_name"
+  ],
+  "tools": [
+    {
+      "tool_id": "tool-00000000-0000-4000-8000-000000000008",
+      "type": "webhook",
+      "timeout_ms": 20000,
+      "shared": false,
+      "webhook": {
+        "name": "check_availability_sunpath",
+        "description": "Check available solar consultation slots on the calendar. Call this only after the lead has passed all three qualification criteria - homeowner, owns roof, bill $100 or more. Returns soonest and upcoming availability.",
+        "url": "https://your-n8n-instance.example.com/webhook/YOUR_WEBHOOK_PATH",
+        "method": "POST",
+        "async": false,
+        "messages": [
+          {
+            "type": "request_start",
+            "content": "Let me pull up the calendar and see what we have available. This could take a moment..."
+          },
+          {
+            "type": "request_response_delayed",
+            "content": "Still checking, almost got it...",
+            "timing_ms": 5000
+          },
+          {
+            "type": "request_response_delayed",
+            "content": "Thanks for hanging on, just about there...",
+            "timing_ms": 10000
+          }
+        ],
+        "body_parameters": {
+          "type": "object",
+          "properties": {
+            "tool_name": {
+              "type": "string",
+              "enum": [
+                "check_availability_sunpath"
+              ],
+              "description": "Constant identifier for the function being called. Must always be 'check_availability_sunpath'."
+            }
+          },
+          "required": [
+            "tool_name"
+          ],
+          "additionalProperties": false
+        },
+        "path_parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "query_parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "tool_id": "tool-00000000-0000-4000-8000-000000000009",
+      "type": "webhook",
+      "timeout_ms": 20000,
+      "shared": false,
+      "webhook": {
+        "name": "check_specific_time_sunpath",
+        "description": "Check whether one specific caller-named appointment time is available. Call this only after the lead has named or confirmed a concrete, specific time (not a vague day-part preference).",
+        "url": "https://your-n8n-instance.example.com/webhook/YOUR_WEBHOOK_PATH",
+        "method": "POST",
+        "async": false,
+        "messages": [
+          {
+            "type": "request_start",
+            "content": "Let me check that time for you..."
+          }
+        ],
+        "body_parameters": {
+          "type": "object",
+          "properties": {
+            "tool_name": {
+              "type": "string",
+              "enum": [
+                "check_specific_time_sunpath"
+              ],
+              "description": "Constant identifier for the function being called. Must always be 'check_specific_time_sunpath'."
+            },
+            "requested_time": {
+              "type": "string",
+              "description": "The ISO timestamp of the specific time the lead named or confirmed."
+            }
+          },
+          "required": [
+            "tool_name",
+            "requested_time"
+          ],
+          "additionalProperties": false
+        },
+        "path_parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "query_parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "tool_id": "tool-00000000-0000-4000-8000-000000000010",
+      "type": "webhook",
+      "timeout_ms": 20000,
+      "shared": false,
+      "webhook": {
+        "name": "book_appointment_sunpath",
+        "description": "Book a solar consultation appointment after the lead has selected a specific time slot. Call this only after the lead has confirmed their chosen time.",
+        "url": "https://your-n8n-instance.example.com/webhook/YOUR_WEBHOOK_PATH",
+        "method": "POST",
+        "async": false,
+        "messages": [
+          {
+            "type": "request_start",
+            "content": "Let me get that locked in for you. Please give me a moment while I do that..."
+          },
+          {
+            "type": "request_response_delayed",
+            "content": "Still working on it, almost done...",
+            "timing_ms": 5000
+          },
+          {
+            "type": "request_response_delayed",
+            "content": "Thanks for your patience, just about there...",
+            "timing_ms": 10000
+          }
+        ],
+        "body_parameters": {
+          "type": "object",
+          "properties": {
+            "tool_name": {
+              "type": "string",
+              "enum": [
+                "book_appointment_sunpath"
+              ],
+              "description": "Constant identifier for the function being called. Must always be 'book_appointment_sunpath'."
+            },
+            "first_name": {
+              "type": "string",
+              "description": "The caller's first name."
+            },
+            "last_name": {
+              "type": "string",
+              "description": "The caller's last name. Optional - include only if provided."
+            },
+            "phone_number": {
+              "type": "string",
+              "description": "The caller's phone number in full international or local format."
+            },
+            "absolute_time": {
+              "type": "string",
+              "description": "The ISO timestamp of the chosen appointment slot."
+            }
+          },
+          "required": [
+            "tool_name",
+            "first_name",
+            "last_name",
+            "phone_number",
+            "absolute_time"
+          ],
+          "additionalProperties": false
+        },
+        "path_parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "query_parameters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "tool_id": "tool-00000000-0000-4000-8000-000000000011",
+      "type": "hangup",
+      "timeout_ms": 5000,
+      "shared": false,
+      "hangup": {
+        "description": "End the call after the conversation is complete - whether booked, disqualified, callback collected, not interested, or wrong person. Always say goodbye before triggering."
+      }
+    }
+  ],
+  "dynamic_variables_webhook": "https://your-n8n-instance.example.com/webhook/YOUR_WEBHOOK_PATH"
+}
